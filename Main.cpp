@@ -3,42 +3,26 @@
 
 // GLEW
 #define GLEW_STATIC
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 
-// GLFW
-#include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "renderer.h"
+#include "vertex_buffer.h"
+#include "index_buffer.h"
 #include "shader_handler.h"
+#include "texture.h"
+
+// GLFW
+#include <GLFW/glfw3.h>
 
 // Window size
 const GLint SCREEN_WIDTH = 800, SCREEN_HEIGHT = 800;
 //
-
-// this is compiler specific, gcc probably cant recognize this
-#define ASSERT(x) if (!(x)) __debugbreak();
-#define GLCall(x) GLClearError(); x; ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-
-static void GLClearError()
-{
-	while (glGetError() != GL_NO_ERROR);
-}
-
-static bool GLLogCall(const char* function, const char* file, int line)
-{
-	while (GLenum error = glGetError())
-	{
-		std::cout << "[OpenGL Error] (" << error << ")\n" << function << " " << file << ": " << line << std::endl;
-		return false;
-	}
-	return true;
-}
-
-
 
 int main()
 {
@@ -93,30 +77,26 @@ int main()
 		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 		 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f,
-		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+
+		 //third quad
+		-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 2.0f,
+		-0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 2.0f,
+		 0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 2.0f,
+		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 2.0f
+
 	};
 
-//	float vertices[] = {
-//		// position			// color		  // ID
-//		// first quad
-//		-0.75f, -0.75f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-//		-0.75f,  0.25f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-//		 0.25f, -0.75f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-//		 0.25f,  0.25f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
-//
-//		//second quad
-//		-0.25f, -0.25f, 0.10f, 1.0f, 0.0f, 0.0f, 1.0f,
-//		-0.25f,  0.75f, 0.10f, 0.0f, 1.0f, 0.0f, 1.0f,
-//		 0.75f, -0.25f, 0.10f, 0.0f, 0.0f, 1.0f, 1.0f,
-//		 0.75f,  0.75f, 0.10f, 1.0f, 1.0f, 0.0f, 1.0f
-//	};
 
 	unsigned int indices[] = {  // note that we start from 0!
 		0, 1, 2,   // first triangle of first quad
 		2, 1, 3,   // second triangle of first quad
 
 		4, 5, 6,   // first triangle of second quad
-		6, 5, 7    // second triangle of second quad
+		6, 5, 7,   // second triangle of second quad
+
+		8, 9, 10,  // first triangle of third quad
+		10, 9, 11  // second triangle of third quad
 	};
 
 	glEnable(GL_DEPTH_TEST);
@@ -139,6 +119,12 @@ int main()
 //	GLCall( glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0) );
 //	GLCall( glEnableVertexAttribArray(0) );
 
+//	OpenGL functions will be called through these objects:
+//	VertexBuffer VB(vertices, sizeof(vertices));
+//	IndexBuffer IB(indices, sizeof(indices)/sizeof(unsigned int));
+
+	Texture texture("assets/saucer_blue.png");
+	texture.Bind();
 
 	unsigned int VBO;
 	GLCall( glGenBuffers(1, &VBO) );
@@ -176,8 +162,10 @@ int main()
 	int counter = 0;
 	GLCall(unsigned int translateLoc = glGetUniformLocation(shaderProgram, "translation"));
 
-	glm::vec3 translate[2] = { glm::vec3(-0.25f, -0.25f, 0.1f), glm::vec3(0.25f, 0.4f, -0.1f) };
-	GLCall( glUniform3fv(translateLoc, 2, glm::value_ptr(translate[0])) );
+//	glm::vec3 translate[2] = { glm::vec3(-0.25f, -0.25f, 0.1f), glm::vec3(0.25f, 0.4f, -0.1f) };
+	glm::vec3 translate[3] = { {-0.25f, -0.25f, 0.1f}, {0.25f, 0.4f, -0.1f}, {-0.3f, 0.25f, 0.0f} };
+
+	GLCall( glUniform3fv(translateLoc, 3, glm::value_ptr(translate[0])) );
 	
 	// Game loop
 	while (!glfwWindowShouldClose(window))
@@ -192,7 +180,7 @@ int main()
 //		GLCall( glUseProgram(shaderProgram) );
 //		GLCall( glBindVertexArray(VAO) );
 
-		GLCall( glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0) );
+		GLCall( glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0) );
 
 		// Swap the screen buffers
 		glfwSwapBuffers(window);
