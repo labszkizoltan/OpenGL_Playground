@@ -131,10 +131,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Main_multiBuffer.cpp" />
     <ClCompile Include="Resources\Vendor\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="shape_creator.h" />
     <ClInclude Include="index_buffer.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="shader_handler.h" />
@@ -143,6 +144,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\FragmentShader.glsl" />
+    <None Include="Resources\Shaders\Multibuf_frag.glsl" />
+    <None Include="Resources\Shaders\Multibuf_vert.glsl" />
     <None Include="Resources\Shaders\VertexShader.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

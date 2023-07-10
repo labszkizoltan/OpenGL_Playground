@@ -32,6 +32,9 @@
     <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="shape_creator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Shaders\VertexShader.glsl">
@@ -40,12 +43,14 @@
     <None Include="Resources\Shaders\FragmentShader.glsl">
       <Filter>Resources\Shaders</Filter>
     </None>
+    <None Include="Resources\Shaders\Multibuf_frag.glsl" />
+    <None Include="Resources\Shaders\Multibuf_vert.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
+    <ClCompile Include="Resources\Vendor\stb_image.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Resources\Vendor\stb_image.cpp">
+    <ClCompile Include="Main_multiBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
